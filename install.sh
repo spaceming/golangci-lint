@@ -282,9 +282,9 @@ http_download_curl() {
   if [ "$curl_version" = "8.8.0" ]; then
     log_debug "http_download_curl curl $curl_version detected"
     if [ -z "$header" ]; then
-      curl -sL -o "$local_file" "$source_url"
+      curl --retry 3 --retry-delay 1 -sL -o "$local_file" "$source_url"
     else
-      curl -sL -H "$header" -o "$local_file" "$source_url"
+      curl --retry 3 --retry-delay 1 -sL -H "$header" -o "$local_file" "$source_url"
 
       nf=$(cat "$local_file" | jq -r '.error // ""')
       if  [ ! -z "$nf" ]; then
@@ -297,9 +297,9 @@ http_download_curl() {
   fi
 
   if [ -z "$header" ]; then
-    code=$(curl -w '%{http_code}' -sL -o "$local_file" "$source_url")
+    code=$(curl --retry 3 --retry-delay 1 -w '%{http_code}' -sL -o "$local_file" "$source_url")
   else
-    code=$(curl -w '%{http_code}' -sL -H "$header" -o "$local_file" "$source_url")
+    code=$(curl --retry 3 --retry-delay 1 -w '%{http_code}' -sL -H "$header" -o "$local_file" "$source_url")
   fi
   if [ "$code" != "200" ]; then
     log_err "http_download_curl received HTTP status $code"
